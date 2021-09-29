@@ -4,6 +4,9 @@
 #include <iostream>
 #include "Shader.h"
 #include "stb_image.h"
+#include <glm/glm.hpp>
+#include <glm/gtc/matrix_transform.hpp>
+#include <glm/gtc/type_ptr.hpp>
 float vertices[] = {
 	//     ---- 位置 ----       ---- 颜色 ----     - 纹理坐标 -
 		 0.5f,  0.5f, 0.0f,   1.0f, 0.0f, 0.0f,   1.0f, 1.0f,   // 右上
@@ -17,6 +20,7 @@ unsigned int indices[] = {
 };
 void processInput(GLFWwindow* window);
 int main() {
+
 	
 	glfwInit();
 	glfwWindowHint(GLFW_CONTEXT_VERSION_MAJOR,3);
@@ -109,6 +113,8 @@ int main() {
 	glBindTexture(GL_TEXTURE_2D, texture1);
 	glActiveTexture(GL_TEXTURE1);
 	glBindTexture(GL_TEXTURE_2D, texture2);
+
+	
 	while (!glfwWindowShouldClose(window)) {
 		processInput(window);
 		// 渲染
@@ -120,6 +126,17 @@ int main() {
 		// render container
 		testShader.use();
 		glBindVertexArray(VAO);
+		glm::mat4 model;
+		model = glm::rotate(model, glm::radians(-55.0f), glm::vec3(1.0f, 0.0f, 0.0f));
+		testShader.setMat4(std::string("model"), model);
+		glm::mat4 view;
+		// 注意，我们将矩阵向我们要进行移动场景的反方向移动。
+		view = glm::translate(view, glm::vec3(0.f, 0.f, -3.0f));
+		testShader.setMat4(std::string("view"), view);
+		glm::mat4 projection;
+		projection = glm::perspective(glm::radians(45.0f), 8.f / 6.f, 0.1f, 100.0f);
+		testShader.setMat4(std::string("projection"), projection);
+
 		glDrawElements(GL_TRIANGLES, 6, GL_UNSIGNED_INT, 0);
 		// 交换缓冲并查询IO事件
 		glfwSwapBuffers(window);
